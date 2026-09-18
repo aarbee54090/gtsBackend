@@ -30,9 +30,13 @@ const app = express();
 // backend cross-origin (Vercel frontend -> Render backend) if CORS allows
 // credentials for a specific, known origin - a wildcard origin() can't be
 // combined with credentials:true at all, browsers reject it outright.
-const allowedOrigins = [process.env.FRONTEND_URL, "https://goalthalisports.vercel.app", "http://localhost:3000"].filter(
-  Boolean
-);
+const allowedOrigins = [
+  process.env.FRONTEND_URL,
+  "https://goalthalisports.com",
+  "https://www.goalthalisports.com",
+  "https://goalthalisports.vercel.app",
+  "http://localhost:3000",
+].filter(Boolean);
 app.use(
   cors({
     origin(origin, callback) {

@@ -15,3 +15,4 @@ const aboutPageSchema = new mongoose.Schema(
 );
 
 module.exports = mongoose.model("AboutPage", aboutPageSchema);
+
