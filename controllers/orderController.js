@@ -114,19 +114,38 @@ async function getMyOrders(req, res) {
   }
 }
 
-// GET /api/orders/:orderId
-// Public lookup by order ID - the only key, no login (per spec). Excludes
-// the receipt image bytes - too large for a plain JSON response, and not
-// needed for the customer's own tracking view.
-async function getOrderByOrderId(req, res) {
+// GET /api/orders/track/:orderId
+// Public lookup by order ID - anyone holding the ID can track it, no login.
+// Because there's no auth, this returns only progress info: never the
+// contact details, address, players, receipt, or uploaded files.
+async function trackOrderByOrderId(req, res) {
   try {
-    const order = await Order.findOne({ orderId: req.params.orderId }).select(
-      "-receiptImage.data -additionalFiles.data"
+    const orderId = String(req.params.orderId).trim().toUpperCase();
+    const order = await Order.findOne({ orderId }).select(
+      "orderId status productName sport designName designImageUrl quantity deadlineDate priceBreakdown advanceAmount balanceAmount createdAt updatedAt"
     );
     if (!order) {
-      return res.status(404).json({ success: false, message: "Order not found" });
+      return res.status(404).json({ success: false, message: "No order found with that ID" });
     }
-    res.json({ success: true, data: order });
+    res.json({
+      success: true,
+      data: {
+        orderId: order.orderId,
+        status: order.status,
+        productName: order.productName,
+        sport: order.sport,
+        designName: order.designName,
+        designImageUrl: order.designImageUrl,
+        quantity: order.quantity,
+        deadlineDate: order.deadlineDate,
+        currency: order.priceBreakdown?.currency ?? "",
+        total: order.priceBreakdown?.total ?? 0,
+        advanceAmount: order.advanceAmount,
+        balanceAmount: order.balanceAmount,
+        createdAt: order.createdAt,
+        updatedAt: order.updatedAt,
+      },
+    });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
@@ -216,7 +235,7 @@ async function adminUpdateOrderStatus(req, res) {
 
 module.exports = {
   createOrder,
-  getOrderByOrderId,
+  trackOrderByOrderId,
   getMyOrders,
   adminListOrders,
   adminGetReceiptImage,

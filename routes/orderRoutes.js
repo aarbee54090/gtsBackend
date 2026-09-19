@@ -1,7 +1,7 @@
 const express = require("express");
 const {
   createOrder,
-  getOrderByOrderId,
+  trackOrderByOrderId,
   getMyOrders,
   adminListOrders,
   adminGetReceiptImage,
@@ -23,11 +23,11 @@ router.post(
   ]),
   createOrder
 );
-router.get("/mine", requireCustomer, getMyOrders); // must come before "/:orderId" or it'd be swallowed by that param route
+router.get("/mine", requireCustomer, getMyOrders);
+router.get("/track/:orderId", trackOrderByOrderId); // public, no login - see controller
 router.get("/admin/all", requireAdmin, adminListOrders);
 router.get("/admin/:id/receipt", requireAdmin, adminGetReceiptImage);
 router.get("/admin/:id/additional-file/:fileId", requireAdmin, adminGetAdditionalFile);
 router.patch("/admin/:id/status", requireAdmin, adminUpdateOrderStatus);
-router.get("/:orderId", getOrderByOrderId);
 
 module.exports = router;
